@@ -14,6 +14,37 @@ static uint8_t error_code;
 /*******************************************************************************
 * Private function definitions.
 *******************************************************************************/
+bool __attribute__((weak)) custom_transport_open(struct uxrCustomTransport * transport) 
+{
+    (void) transport;
+    return false;
+}
+
+bool __attribute__((weak)) custom_transport_close(struct uxrCustomTransport * transport)
+{
+    (void) transport;
+    return false;
+}
+
+size_t __attribute__((weak)) custom_transport_write(struct uxrCustomTransport* transport, const uint8_t * buf, size_t len, uint8_t * err)
+{
+    (void) transport;
+    (void) buf;
+    (void) len;
+    (void) err;
+    return 0;
+}
+
+size_t __attribute__((weak)) custom_transport_read(struct uxrCustomTransport* transport, uint8_t* buf, size_t len, int timeout, uint8_t* err)
+{
+    (void) transport;
+    (void) buf;
+    (void) len;
+    (void) timeout;
+    (void) err;
+    return 0;
+}
+
 static bool send_custom_msg(
         void* instance,
         const uint8_t* buf,
@@ -146,7 +177,15 @@ bool uxr_init_custom_transport(
             transport->write == NULL ||
             transport->read == NULL)
     {
-        return rv;
+#ifdef UCLIENT_PROFILE_STREAM_FRAMING
+        transport->framing = true;
+#else
+        transport->framing = false;
+#endif // ifdef UCLIENT_PROFILE_STREAM_FRAMING
+        transport->open = custom_transport_open;;
+        transport->close = custom_transport_close;
+        transport->write = custom_transport_write;
+        transport->read = custom_transport_read;
     }
 
     transport->args = args;
