@@ -177,16 +177,14 @@ bool uxr_init_custom_transport(
             transport->write == NULL ||
             transport->read == NULL)
     {
+        return rv;
+    }
+
 #ifdef UCLIENT_PROFILE_STREAM_FRAMING
         transport->framing = true;
 #else
         transport->framing = false;
 #endif // ifdef UCLIENT_PROFILE_STREAM_FRAMING
-        transport->open = custom_transport_open;;
-        transport->close = custom_transport_close;
-        transport->write = custom_transport_write;
-        transport->read = custom_transport_read;
-    }
 
     transport->args = args;
 
